@@ -1,0 +1,11 @@
+body {
+  margin: 0;
+  padding: 0;
+  font-family: sans-serif;
+}
+
+html {
+  touch-action: manipulation;
+  background-color: rgb(13, 61, 13);
+  padding-top: 5rem;
+}
