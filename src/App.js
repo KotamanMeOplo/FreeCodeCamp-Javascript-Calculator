@@ -32,7 +32,7 @@ class App extends Component {
     };
   }
 
-  checkForErrors(val) {
+  checkForErrors(val, operators) {
     return parseFloat(val, 10) > 999999999 || (isNaN(val) && !operators.test(val)) || /e/.test(val) ? 'Error' : val
   };
 
@@ -108,7 +108,7 @@ class App extends Component {
       });
     }
     this.setState({
-      screenText: this.checkForErrors(tempString)
+      screenText: this.checkForErrors(tempString, operators)
     });
   }
 
