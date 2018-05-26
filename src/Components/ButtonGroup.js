@@ -13,9 +13,6 @@ class ButtonGroup extends Component {
   constructor(props) {
     super(props);
     this.clickHandler = this.clickHandler.bind(this);
-    this.state = {
-      buttonList: ['C', '7', '8', '9', '/', '4', '5', '6', '*', '1', '2', '3', '-', '0', '.', '=', '+']
-    };
   }
 
   clickHandler(symbol){
@@ -23,10 +20,11 @@ class ButtonGroup extends Component {
   }
 
   render() {
+    let buttonLis = ['C', '7', '8', '9', '/', '4', '5', '6', '*', '1', '2', '3', '-', '0', '.', '=', '+'];
     let buttonArray = [];
 
-    for(let i = 0; i < this.state.buttonList.length; i++){
-      buttonArray.push(<SingleButton handleClick={this.clickHandler}  key={i} symbol={this.state.buttonList[i]} />);
+    for(let i = 0; i < buttonList.length; i++){
+      buttonArray.push(<SingleButton handleClick={this.clickHandler}  key={i} symbol={buttonList[i]} />);
 
       if(i % 4 === 0)
         buttonArray.push(<br key={i+.5} />);

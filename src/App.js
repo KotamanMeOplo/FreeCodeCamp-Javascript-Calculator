@@ -16,8 +16,6 @@ class App extends Component {
   constructor(props) {
     super(props);
     this.buttonClickHandlder = this.buttonClickHandlder.bind(this);
-    this.numbers = new RegExp(/^\d$/);
-    this.operators = new RegExp(/^\/|\*|-|\+|=$/);
     this.state = {
       screenText: '0',
       commaUsed: false,
@@ -35,7 +33,7 @@ class App extends Component {
   }
 
   checkForErrors(val) {
-    return parseFloat(val, 10) > 999999999 || (isNaN(val) && !this.operators.test(val)) || /e/.test(val) ? 'Error' : val
+    return parseFloat(val, 10) > 999999999 || (isNaN(val) && !operators.test(val)) || /e/.test(val) ? 'Error' : val
   };
 
   round(strNum) {
@@ -46,6 +44,8 @@ class App extends Component {
   }
 
   processScreenText(symbol) {
+    const numbers = new RegExp(/^\d$/);
+    const operators = new RegExp(/^\/|\*|-|\+|=$/);
     let tempString = this.state.screenText;
 
     if(symbol === 'C'){
@@ -59,7 +59,7 @@ class App extends Component {
     }else if(tempString.length < 9 || (this.state.commaUsed && tempString.length < 10)){   //Allow bigger number to be typed
       if(symbol === '.'){
         if(!this.state.commaUsed){
-          if(this.operators.test(tempString) || this.state.answerDisplayed){
+          if(operators.test(tempString) || this.state.answerDisplayed){
             tempString = '0.';
             this.setState({answerDisplayed: false});
           }else
@@ -69,8 +69,8 @@ class App extends Component {
             commaUsed: true
           });
         }
-      }else if(this.numbers.test(symbol)){
-        if(tempString === '0' || this.operators.test(tempString) || this.state.answerDisplayed){  //Substitute operators or 0 from input with new input
+      }else if(numbers.test(symbol)){
+        if(tempString === '0' || operators.test(tempString) || this.state.answerDisplayed){  //Substitute operators or 0 from input with new input
           tempString = symbol;
           this.setState({answerDisplayed: false});
         }else{
@@ -79,7 +79,7 @@ class App extends Component {
       }
     }
 
-    if(this.operators.test(symbol)){  //Do the math
+    if(operators.test(symbol)){  //Do the math
       let tempFirstVal;
       this.setState({commaUsed: false});
       
