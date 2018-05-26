@@ -1,7 +1,15 @@
 import React, { Component } from 'react';
+import styled from 'styled-components';
 import SingleButton from './SingleButton';
 
-class Buttons extends Component {
+
+const ButtonWrapper = styled.div`
+  text-align: right;
+  width: 24rem;
+  margin: 0 auto;
+`;
+
+class ButtonGroup extends Component {
   constructor(props) {
     super(props);
     this.clickHandler = this.clickHandler.bind(this);
@@ -24,18 +32,12 @@ class Buttons extends Component {
         buttonArray.push(<br key={i+.5} />);
     }
 
-    let buttonsStyle = {
-      textAlign: 'right',
-      width: '24rem',
-      margin: '0 auto'
-    };
-
     return (
-      <div id="buttons" style={buttonsStyle}>
+      <ButtonWrapper>
         {buttonArray}
-      </div>
+      </ButtonWrapper>
     );
   }
 }
 
-export default Buttons;
+export default ButtonGroup;

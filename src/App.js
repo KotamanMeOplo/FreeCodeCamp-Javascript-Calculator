@@ -1,6 +1,16 @@
 import React, { Component } from 'react';
+import styled from 'styled-components';
 import Screen from './Components/Screen';
-import Buttons from './Components/Buttons';
+import ButtonGroup from './Components/ButtonGroup';
+
+const Wrapper = styled.div`
+  background-color: #444;
+  width: 24rem;
+  margin: 0 auto;
+  padding: 2rem;
+  border-radius: 25px;
+  box-shadow: inset 7px 7px 7px #333, inset 10px 10px 10px rgba(255, 255, 255, .5), inset -5px -5px 5px rgba(0, 0, 0, .5),inset -10px -10px 10px rgba(0, 0, 0, .5), 5px 5px 15px rgba(0, 0, 0, .5), 15px 15px 5px rgba(0, 0, 0, .5);
+`;
 
 class App extends Component {
   constructor(props) {
@@ -107,19 +117,11 @@ class App extends Component {
   }
 
   render() {
-    let calcStyle = {
-      backgroundColor: '#444',
-      width: '24rem',
-      margin: '0 auto',
-      padding: '2rem',
-      borderRadius: '25px',
-      boxShadow: 'inset 7px 7px 7px #333, inset 10px 10px 10px rgba(255, 255, 255, .5), inset -5px -5px 5px rgba(0, 0, 0, .5),inset -10px -10px 10px rgba(0, 0, 0, .5), 5px 5px 15px rgba(0, 0, 0, .5), 15px 15px 5px rgba(0, 0, 0, .5)'
-    };
     return (
-      <div className="App" style={calcStyle}>
+      <Wrapper className="App">
         <Screen mathOperation={this.state.screenText} />
-        <Buttons handleClick={this.buttonClickHandlder}/>
-      </div>
+        <ButtonGroup handleClick={this.buttonClickHandlder}/>
+      </Wrapper>
     );
   }
 }
