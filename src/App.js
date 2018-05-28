@@ -15,7 +15,7 @@ const Wrapper = styled.div`
 class App extends Component {
   constructor(props) {
     super(props);
-    this.buttonClickHandlder = this.buttonClickHandlder.bind(this);
+    this.buttonClickHandler = this.buttonClickHandler.bind(this);
     this.state = {
       screenText: '0',
       commaUsed: false,
@@ -32,8 +32,16 @@ class App extends Component {
     };
   }
 
-  checkForErrors(val, operators) {
-    return parseFloat(val, 10) > 999999999 || (isNaN(val) && !operators.test(val)) || /e/.test(val) ? 'Error' : val
+  isNumber(val){
+    return /^\d$/.test(val);
+  }
+
+  isOperator(val){
+    return /^\/|\*|-|\+$/.test(val);
+  }
+
+  checkForErrors(val) {
+    return parseFloat(val, 10) > 999999999 || (isNaN(val) && !this.isOperator(val)) || /e/.test(val) ? 'Error' : val
   };
 
   round(strNum) {
@@ -43,84 +51,95 @@ class App extends Component {
     return (Math.round(parseFloat(strNum, 10) * Math.pow(10, allowedDecimals)) / Math.pow(10, allowedDecimals)).toString();
   }
 
-  processScreenText(symbol) {
-    const numbers = new RegExp(/^\d$/);
-    const operators = new RegExp(/^\/|\*|-|\+|=$/);
-    let tempString = this.state.screenText;
-
-    if(symbol === 'C'){
-      tempString = '0';
-    
-      this.setState({
-        commaUsed: false,
-        lastOperator: '',
-        firstValue: undefined
-      });
-    }else if(tempString.length < 9 || (this.state.commaUsed && tempString.length < 10)){   //Allow bigger number to be typed
-      if(symbol === '.'){
-        if(!this.state.commaUsed){
-          if(operators.test(tempString) || this.state.answerDisplayed){
-            tempString = '0.';
-            this.setState({answerDisplayed: false});
-          }else
-            tempString += symbol;
-
-          this.setState({
-            commaUsed: true
-          });
-        }
-      }else if(numbers.test(symbol)){
-        if(tempString === '0' || operators.test(tempString) || this.state.answerDisplayed){  //Substitute operators or 0 from input with new input
-          tempString = symbol;
-          this.setState({answerDisplayed: false});
-        }else{
-          tempString += symbol;
-        }
-      }
-    }
-
-    if(operators.test(symbol)){  //Do the math
-      let tempFirstVal;
-      this.setState({commaUsed: false});
-      
-      if(this.state.firstValue === undefined || this.state.lastOperator === '='){
-        tempFirstVal = parseFloat(tempString, 10);
-      }else{
-        tempFirstVal = this.mathOperations[this.state.lastOperator](this.state.firstValue, parseFloat(tempString, 10));
-        if(this.state.lastOperator === '/' && parseInt(tempString, 10) === 0) tempFirstVal = 'Infinity'
-      }
-      
-      if(symbol === '='){   //Display result
-        tempString = this.round(tempFirstVal.toString());
-        tempFirstVal = undefined;
-        symbol = '';
-        this.setState({
-          commaUsed: false,
-          answerDisplayed: true
-        });
-      }else{
-        tempString = symbol;
-      }
-
-      this.setState({
-        firstValue: tempFirstVal,
-        lastOperator: symbol
-      });
-    }
+  initializeCalculator() {
     this.setState({
-      screenText: this.checkForErrors(tempString, operators)
+      commaUsed: false,
+      lastOperator: '',
+      firstValue: undefined
+    });
+  }
+  
+  handleNumbers(char) {
+    let string = this.state.screenText;
+
+    if(char === '.' && !this.state.commaUsed){
+      if(this.isOperator(string) || this.state.answerDisplayed){
+        string = '0.';
+        this.setState({answerDisplayed: false});
+      }else
+        string += '.';
+  
+      this.setState({
+        commaUsed: true
+      });
+    }else if(this.isNumber(char)){
+      if(string === '0' || this.isOperator(string) || this.state.answerDisplayed){
+        string = char;
+        this.setState({answerDisplayed: false});
+      }else{
+        string += char;
+      }
+    }
+    
+    return string;
+  }
+
+  displayValue(val) {
+    this.setState({
+      screenText: this.checkForErrors(val)
     });
   }
 
-  buttonClickHandlder(symbol) {
-    this.processScreenText(symbol);
+  calculate() {
+    let tempFirstVal;
+    
+    if(this.state.firstValue === undefined){//Note: if = press then what
+      tempFirstVal = parseFloat(this.state.screenText, 10);
+    }else{
+      tempFirstVal = this.mathOperations[this.state.lastOperator](this.state.firstValue, parseFloat(this.state.screenText, 10));
+
+      const isDividedByZero = this.state.lastOperator === '/' && parseInt(this.state.screenText, 10) === 0;
+      if(isDividedByZero){
+        tempFirstVal = 'Infinity'
+      }
+    }
+
+    return tempFirstVal;
+  }
+
+  buttonClickHandler(symbol) {
+    let tempString;
+
+    if(this.isOperator(symbol)){
+      tempString = symbol;
+      this.setState({
+        firstValue: this.calculate(),
+        lastOperator: symbol,
+        commaUsed: false
+      });
+    } else if(symbol === 'C'){
+      tempString = '0';
+      this.initializeCalculator();
+    }else if(symbol === '='){
+      tempString = this.round(this.calculate().toString());
+      this.initializeCalculator();
+      this.setState({answerDisplayed: true});
+    }else{
+      const characterLimitNotReached = this.state.screenText.length < 9 || (this.state.commaUsed && this.state.screenText.length < 10);
+      if(characterLimitNotReached){
+        tempString = this.handleNumbers(symbol);
+      }
+    }
+
+    if(tempString !== undefined)
+      this.displayValue(tempString);
   }
 
   render() {
     return (
       <Wrapper className="App">
         <Screen mathOperation={this.state.screenText} />
-        <ButtonGroup handleClick={this.buttonClickHandlder}/>
+        <ButtonGroup handleClick={this.buttonClickHandler}/>
       </Wrapper>
     );
   }
