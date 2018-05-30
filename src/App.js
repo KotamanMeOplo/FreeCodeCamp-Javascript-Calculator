@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 import Screen from './Components/Screen';
 import ButtonGroup from './Components/ButtonGroup';
+import { round, mathOperations } from './helpers/math';
+import { isNumber, isOperator, checkForErrors } from './helpers/validation';
 
 const Wrapper = styled.div`
   background-color: #444;
@@ -23,32 +25,6 @@ class App extends Component {
       firstValue: undefined,
       answerDisplayed: false
     };
-    
-    this.mathOperations = {
-      '+': (x, y) => x + y,
-      '-': (x, y) => x - y,
-      '*': (x, y) => x * y,
-      '/': (x, y) => x / y
-    };
-  }
-
-  isNumber(val){
-    return /^\d$/.test(val);
-  }
-
-  isOperator(val){
-    return /^\/|\*|-|\+$/.test(val);
-  }
-
-  checkForErrors(val) {
-    return parseFloat(val, 10) > 999999999 || (isNaN(val) && !this.isOperator(val)) || /e/.test(val) ? 'Error' : val
-  };
-
-  round(strNum) {
-    let numParts = strNum.split('.');
-    let allowedDecimals = 9 - numParts[0].length;
-
-    return (Math.round(parseFloat(strNum, 10) * Math.pow(10, allowedDecimals)) / Math.pow(10, allowedDecimals)).toString();
   }
 
   initializeCalculator() {
@@ -63,7 +39,7 @@ class App extends Component {
     let string = this.state.screenText;
 
     if(char === '.' && !this.state.commaUsed){
-      if(this.isOperator(string) || this.state.answerDisplayed){
+      if(isOperator(string) || this.state.answerDisplayed){
         string = '0.';
         this.setState({answerDisplayed: false});
       }else
@@ -72,8 +48,8 @@ class App extends Component {
       this.setState({
         commaUsed: true
       });
-    }else if(this.isNumber(char)){
-      if(string === '0' || this.isOperator(string) || this.state.answerDisplayed){
+    }else if(isNumber(char)){
+      if(string === '0' || isOperator(string) || this.state.answerDisplayed){
         string = char;
         this.setState({answerDisplayed: false});
       }else{
@@ -86,7 +62,7 @@ class App extends Component {
 
   displayValue(val) {
     this.setState({
-      screenText: this.checkForErrors(val)
+      screenText: checkForErrors(val)
     });
   }
 
@@ -96,7 +72,7 @@ class App extends Component {
     if(this.state.firstValue === undefined){//Note: if = press then what
       tempFirstVal = parseFloat(this.state.screenText, 10);
     }else{
-      tempFirstVal = this.mathOperations[this.state.lastOperator](this.state.firstValue, parseFloat(this.state.screenText, 10));
+      tempFirstVal = mathOperations[this.state.lastOperator](this.state.firstValue, parseFloat(this.state.screenText, 10));
 
       const isDividedByZero = this.state.lastOperator === '/' && parseInt(this.state.screenText, 10) === 0;
       if(isDividedByZero){
@@ -110,7 +86,7 @@ class App extends Component {
   buttonClickHandler(symbol) {
     let tempString;
 
-    if(this.isOperator(symbol)){
+    if(isOperator(symbol)){
       tempString = symbol;
       this.setState({
         firstValue: this.calculate(),
@@ -121,7 +97,7 @@ class App extends Component {
       tempString = '0';
       this.initializeCalculator();
     }else if(symbol === '='){
-      tempString = this.round(this.calculate().toString());
+      tempString = round(this.calculate().toString());
       this.initializeCalculator();
       this.setState({answerDisplayed: true});
     }else{
